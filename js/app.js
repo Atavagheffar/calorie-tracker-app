@@ -1,7 +1,7 @@
 class CalorieTracker {
     constructor() {
 
-        this._calorieLimit = 2000;
+        this._calorieLimit = Storage.getCalorieLimit();
         this._totalCalories = 0;
         this._meals = [];
         this._workouts = [];
@@ -75,6 +75,17 @@ class CalorieTracker {
     }
 
 
+    setLimit(calorieLimit){
+
+        this._calorieLimit = calorieLimit;
+
+        Storage.setCalorieLimit(calorieLimit);
+
+        this._displayCalorieLimit();
+
+        this._renderStats();
+
+    }
 
 
 //   ****  private methods ****
@@ -228,6 +239,25 @@ class Workout {
     }
 }
 
+class Storage {
+
+    static getCalorieLimit(defaultLimit = 2200){
+        let calorieLimit;
+
+        if (localStorage.getItem('calorieLimit') === null){
+            calorieLimit = defaultLimit;
+        }else{
+            calorieLimit = localStorage.getItem('calorieLimit')*1;
+        }
+        return calorieLimit;
+    }
+
+    static setCalorieLimit(calorieLimit){
+        localStorage.setItem('calorieLimit',calorieLimit);
+    }
+}
+
+
 class App {
     constructor() {
         this._tracker = new CalorieTracker();
@@ -344,24 +374,26 @@ class App {
 
     }
 
+
     _setLimit(evt){
+
         evt.preventDefault();
 
-        const limit = document.getElementById('limit')
+        const limit = document.getElementById('limit');
 
         if (limit.value === ''){
-            alert("Please add a limit");
-            return;
+            alert("Please fill the input filed");
+            return 0;
         }
 
         this._tracker.setLimit(limit.value*1);
+
         limit.value = '';
 
+        const limitModal = bootstrap.Modal.getInstance(document.getElementById('limit-modal'))
 
-        const modalEle = document.getElementById('limit-modal');
-        const modal = bootstrap.Modal.getInstance(modalEle);
+        limitModal.hide();
 
-        modal.hide();
 
     }
 
@@ -370,6 +402,8 @@ class App {
 
 
 const app = new App();
+
+
 
 
 
